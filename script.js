@@ -1,43 +1,23 @@
-var map;
-var infowindow;
+var mymap = L.map('mapid').setView([51.505, -0.09], 13);
 
-function initialize() {
-    var pyrmont = new google.maps.LatLng(11.2333, 78.1667);
+L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+    maxZoom: 18,
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+        'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    id: 'mapbox/streets-v11',
+    tileSize: 512,
+    zoomOffset: -1
+}).addTo(mymap);
 
-    map = new google.maps.Map(document.getElementById('map-canvas'), {
-        center: pyrmont,
-        zoom: 15
-    });
+L.marker([51.5, -0.09]).addTo(mymap)
+    .bindPopup("<b>Hello world!</b><br />I am a popup.").openPopup();
+var popup = L.popup();
 
-    var request = {
-        location: pyrmont,
-        radius: 5500,
-        types: ['atm']
-    };
-    infowindow = new google.maps.InfoWindow();
-    var service = new google.maps.places.PlacesService(map);
-    service.nearbySearch(request, callback);
+function onMapClick(e) {
+    popup
+        .setLatLng(e.latlng)
+        .setContent("You clicked the map at " + e.latlng.toString())
+        .openOn(mymap);
 }
 
-function callback(results, status) {
-    if (status == google.maps.places.PlacesServiceStatus.OK) {
-        for (var i = 0; i < results.length; i++) {
-            createMarker(results[i]);
-        }
-    }
-}
-
-function createMarker(place) {
-    var placeLoc = place.geometry.location;
-    var marker = new google.maps.Marker({
-        map: map,
-        position: place.geometry.location
-    });
-
-    google.maps.event.addListener(marker, 'click', function() {
-        infowindow.setContent(place.name);
-        infowindow.open(map, this);
-    });
-}
-
-google.maps.event.addDomListener(window, 'load', initialize);
+mymap.on('click', onMapClick);
